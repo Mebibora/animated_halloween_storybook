@@ -1,156 +1,355 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Spooktacular Storybook',
       home: DefaultTabController(
         length: 3,
-        child: _TabsNonScrollableDemo(),
+        child: const StoryTabs(),
       ),
     );
   }
 }
 
-class _TabsNonScrollableDemo extends StatefulWidget {
+//-------------------------------------------------------------//
+//  MAIN TAB CONTROLLER
+//-------------------------------------------------------------//
+class StoryTabs extends StatelessWidget {
+  const StoryTabs({super.key});
+
   @override
-  __TabsNonScrollableDemoState createState() => __TabsNonScrollableDemoState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Spooktacular Storybook'),
+        backgroundColor: Colors.deepPurple,
+        bottom: const TabBar(
+          tabs: [
+            Tab(text: 'Tab 1'),
+            Tab(text: 'Tab 2'),
+            Tab(text: 'Tab 3'),
+          ],
+        ),
+      ),
+      body: const TabBarView(
+        children: [
+          PartnerScene(),   // 👻 Tab 1: Haunted House
+          WerewolfScene(),  // 🐺 Tab 2: Werewolf
+          DraculaScene(),   // 🧛 Tab 3: Dracula
+        ],
+      ),
+    );
+  }
 }
 
-class __TabsNonScrollableDemoState extends State<_TabsNonScrollableDemo>
-    with SingleTickerProviderStateMixin, RestorationMixin {
-  late TabController _tabController;
-
-  final RestorableInt tabIndex = RestorableInt(0);
-
-  @override
-  String get restorationId => 'tab_non_scrollable_demo';
+//-------------------------------------------------------------//
+//  👻 TAB 1 — Haunted House (uses ghoul.webp, bat, cross)
+//-------------------------------------------------------------//
+class PartnerScene extends StatefulWidget {
+  const PartnerScene({super.key});
 
   @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(tabIndex, 'tab_index');
-    _tabController.index = tabIndex.value;
+  State<PartnerScene> createState() => _PartnerSceneState();
+}
+
+class _PartnerSceneState extends State<PartnerScene> {
+  bool ghostVisible = false;
+  bool batVisible = false;
+  bool crossGlow = false;
+
+  void toggleGhost() {
+    setState(() => ghostVisible = !ghostVisible);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(
-      initialIndex: 0,
-      length: 3,
-      vsync: this,
-    );
-    _tabController.addListener(() {
-      setState(() {
-        tabIndex.value = _tabController.index;
-      });
+  void flyBat() {
+    setState(() => batVisible = true);
+    Future.delayed(const Duration(seconds: 3), () {
+      setState(() => batVisible = false);
+    });
+  }
+
+  void activateCross() {
+    setState(() => crossGlow = true);
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() => crossGlow = false);
     });
   }
 
   @override
-  void dispose() {
-    _tabController.dispose();
-    tabIndex.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // 🏚️ Background
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/haunted_house.jpg'),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+
+        // 👻 Ghost (from ghoul.webp)
+        AnimatedOpacity(
+          opacity: ghostVisible ? 1.0 : 0.0,
+          duration: const Duration(seconds: 2),
+          child: Image.asset('assets/ghoul.webp', width: 180),
+        ),
+
+        // 🦇 Bat (flies briefly)
+        if (batVisible)
+          Positioned(
+            left: 40,
+            top: 120,
+            child: AnimatedOpacity(
+              opacity: batVisible ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 800),
+              child: Image.asset('assets/bat.webp', width: 100),
+            ),
+          ),
+
+        // ✝️ Silver Cross Trap (glows briefly)
+        Positioned(
+          right: 40,
+          bottom: 60,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            decoration: BoxDecoration(
+              boxShadow: crossGlow
+                  ? [BoxShadow(color: Colors.redAccent.withOpacity(0.9), blurRadius: 25)]
+                  : [],
+            ),
+            child: GestureDetector(
+              onTap: activateCross,
+              child: Image.asset('assets/silver_cross.webp', width: 90),
+            ),
+          ),
+        ),
+
+        // 🎃 Buttons
+        Positioned(
+          bottom: 30,
+          child: Column(
+            children: [
+              ElevatedButton(
+                onPressed: toggleGhost,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple[800],
+                ),
+                child: const Text("Summon the Ghoul"),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: flyBat,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple[800],
+                ),
+                child: const Text("Release the Bat"),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+//-------------------------------------------------------------//
+//  🐺 TAB 2 — Werewolf Transformation
+//-------------------------------------------------------------//
+class WerewolfScene extends StatefulWidget {
+  const WerewolfScene({super.key});
+  @override
+  State<WerewolfScene> createState() => _WerewolfSceneState();
+}
+
+class _WerewolfSceneState extends State<WerewolfScene> {
+  int stage = 0;
+  bool trapActivated = false;
+
+  void nextStage() {
+    if (stage < 2) setState(() => stage++);
+  }
+
+  void triggerTrap() {
+    setState(() => trapActivated = true);
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() => trapActivated = false);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-// For the To do task hint: consider defining the widget and name of the tabs here
-    final tabs = ['Tab 1', 'Tab 2', 'Tab 3'];
+    final List<String> images = [
+      'assets/man.webp',
+      'assets/partial.webp',
+      'assets/werewolf.webp',
+    ];
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Tabs Demo',
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/forest_night.webp'),
+              fit: BoxFit.cover,
+            ),
+          ),
         ),
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: false,
-          tabs: [
-            for (final tab in tabs) Tab(text: tab),
-          ],
+        AnimatedPositioned(
+          top: stage == 2 ? 60 : 400,
+          duration: const Duration(seconds: 3),
+          child: Image.asset('assets/moon.webp', width: 130),
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-// hint for the to do task:Considering creating the different for different tabs
-          Container(
-            
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image:AssetImage('images/haunted_house.jpg'),
-                fit: BoxFit.cover,
-            
-              ),
+        GestureDetector(
+          onTap: nextStage,
+          child: AnimatedSwitcher(
+            duration: const Duration(seconds: 2),
+            child: Image.asset(
+              images[stage],
+              key: ValueKey(stage),
+              width: 250,
             ),
-            child: Stack(
-              children: [ 
-                Positioned(
-                  right: 40,
-                  top: 60,
-                  width: 100,
-                  height: 200,
-                  child: Image.asset('images/ghoul.webp')
-                ),
-                Positioned(
-                  left: 50,
-                  top: 90,
-                  width: 100,
-                  height: 200,
-                  child: Image.asset('images/ghoul.webp')
-                ),
-                Positioned(
-                  right: 30,
-                  top: 200,
-                  width: 100,
-                  height: 200,
-                  child: Image.asset('images/bat.webp')
-                ),
-                Positioned(
-                  right: 200,                  
-                  top: 30,
-                  width: 100,
-                  height: 200,
-                  child: Image.asset('images/bat.webp')
-                ),
-                Positioned(
-                  left: 40,
-                  bottom: 30,
-                  width: 200,
-                  height: 100,
-                  child: Image.asset('images/tombstone.webp')
-                ), 
-              ],
-            ),
-            
           ),
-        
-          
-          Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image:AssetImage('assets/images/haunted_house.jpg'),
-                  fit: BoxFit.cover,
-              ),
-            ),  
+        ),
+        Positioned(
+          left: 40,
+          bottom: 80,
+          child: GestureDetector(
+            onTap: triggerTrap,
+            child: Image.asset('assets/silver_cross.webp', width: 80),
           ),
+        ),
+        if (trapActivated)
           Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image:AssetImage('assets/images/haunted_house.jpg'),
-                fit: BoxFit.cover,
+            color: Colors.black.withOpacity(0.7),
+            alignment: Alignment.center,
+            child: const Text(
+              "The silver cross burns!",
+              style: TextStyle(
+                color: Colors.redAccent,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
-        ],
-      ),
+        Positioned(
+          bottom: 40,
+          child: AnimatedOpacity(
+            opacity: stage == 2 ? 1.0 : 0.0,
+            duration: const Duration(seconds: 2),
+            child: const Text(
+              '"Under the full moon... the beast awakens."',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+//-------------------------------------------------------------//
+//  🧛 TAB 3 — Dracula Scene
+//-------------------------------------------------------------//
+class DraculaScene extends StatefulWidget {
+  const DraculaScene({super.key});
+  @override
+  State<DraculaScene> createState() => _DraculaSceneState();
+}
+
+class _DraculaSceneState extends State<DraculaScene> {
+  int stage = 0;
+  bool batVisible = false;
+
+  void nextStage() {
+    if (stage < 2) {
+      setState(() => stage++);
+      if (stage == 2) {
+        batVisible = true;
+        Future.delayed(const Duration(seconds: 3), () {
+          setState(() => batVisible = false);
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<String> draculaStages = [
+      'assets/dracula_coffin.webp',
+      'assets/dracula_rising.webp',
+      'assets/dracula_vampire.webp',
+    ];
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/castle_interior.webp'),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        AnimatedPositioned(
+          top: stage == 2 ? 50 : 450,
+          duration: const Duration(seconds: 3),
+          child: Image.asset('assets/moon.webp', width: 120),
+        ),
+        GestureDetector(
+          onTap: nextStage,
+          child: AnimatedSwitcher(
+            duration: const Duration(seconds: 2),
+            child: Image.asset(
+              draculaStages[stage],
+              key: ValueKey(stage),
+              width: 260,
+            ),
+          ),
+        ),
+        if (batVisible)
+          Positioned(
+            right: 30,
+            top: 100,
+            child: AnimatedOpacity(
+              opacity: batVisible ? 1.0 : 0.0,
+              duration: const Duration(seconds: 1),
+              child: Image.asset('assets/bat.webp', width: 70),
+            ),
+          ),
+        Positioned(
+          bottom: 40,
+          child: AnimatedOpacity(
+            opacity: stage == 2 ? 1.0 : 0.0,
+            duration: const Duration(seconds: 2),
+            child: const Text(
+              '"Dracula rises once more under the full moon."',
+              style: TextStyle(
+                color: Colors.redAccent,
+                fontSize: 18,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
