@@ -82,12 +82,64 @@ class __TabsNonScrollableDemoState extends State<_TabsNonScrollableDemo>
         children: [
 // hint for the to do task:Considering creating the different for different tabs
           Container(
+            
             decoration: BoxDecoration(
               image: DecorationImage(
-                image:AssetImage('assets/images/haunted_house.jpg'),
+                image:AssetImage('images/haunted_house.jpg'),
                 fit: BoxFit.cover,
+            
               ),
             ),
+            child: Stack(
+              children: [ 
+                Positioned(
+                  right: 40,
+                  top: 60,
+                  width: 100,
+                  height: 200,
+                  child: Image.asset('images/ghoul.webp')
+                ),
+                Positioned(
+                  left: 50,
+                  top: 90,
+                  width: 100,
+                  height: 200,
+                  child: Image.asset('images/ghoul.webp')
+                ),
+                Positioned(
+                  right: 30,
+                  top: 200,
+                  width: 100,
+                  height: 200,
+                  child: Image.asset('images/bat.webp')
+                ),
+                Positioned(
+                  right: 200,                  
+                  top: 30,
+                  width: 100,
+                  height: 200,
+                  child: Image.asset('images/bat.webp')
+                ),
+                Positioned(
+                  left: 40,
+                  bottom: 30,
+                  width: 200,
+                  height: 100,
+                  child: Image.asset('images/tombstone.webp')
+                ), 
+              ],
+            ),
+            
+          ),
+        
+          
+          Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image:AssetImage('assets/images/haunted_house.jpg'),
+                  fit: BoxFit.cover,
+              ),
+            ),  
           ),
           Container(
             decoration: BoxDecoration(
@@ -97,18 +149,6 @@ class __TabsNonScrollableDemoState extends State<_TabsNonScrollableDemo>
               ),
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image:AssetImage('assets/images/haunted_house.jpg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          //for (final tab in tabs)
-            //Center(
-              //child: Text(tab),
-            //),
         ],
       ),
     );
